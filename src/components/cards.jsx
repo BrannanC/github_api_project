@@ -24,16 +24,20 @@ const Cards = () => {
         `https://api.github.com/search/repositories?q=user:${search_name}&sort=stars`
       );
       const user = await user_response.json();
-      const repos_with_languages = await Promise.all(
-        user.items.map(async repo => {
-          const raw_lan = await fetch(
-            `https://api.github.com/repos/${search_name}/${repo.name}/languages`
-          );
-          const languages = await raw_lan.json();
-          return { ...repo, languages };
-        })
-      );
-      setUserData({ repos: repos_with_languages });
+      if (!user.message) {
+        const repos_with_languages = await Promise.all(
+          user.items.map(async repo => {
+            const raw_lan = await fetch(
+              `https://api.github.com/repos/${search_name}/${repo.name}/languages`
+            );
+            const languages = await raw_lan.json();
+            return { ...repo, languages };
+          })
+        );
+        setUserData({ repos: repos_with_languages });
+      } else {
+        setUserData(user);
+      }
       setIsLoading(false);
     };
     getRepos(user);
@@ -54,44 +58,50 @@ const Cards = () => {
           onChange={handleChange}
         />
       </form>
-      <div style={container}>
-        {userData && !!userData.repos.length ? (
-          userData.repos.map(repo => {
-            const lang_arr = [];
-            for (let lan in repo.languages) {
-              lang_arr.push(lan);
-            }
+      {userData.message ? (
+        <header className="App-header">
+          <div>Error user doesn't exist</div>
+        </header>
+      ) : (
+        <div style={container}>
+          {userData && !!userData.repos.length ? (
+            userData.repos.map(repo => {
+              const lang_arr = [];
+              for (let lan in repo.languages) {
+                lang_arr.push(lan);
+              }
 
-            return (
-              <Link to={`/${repo.id}`} key={repo.id}>
-                <div className="card" style={cardStyle}>
-                  <h3>{repo.name}</h3>
-                  <h5>Stars: {repo.stargazers_count}</h5>
-                  <div style={infoStyle}>
-                    {repo.description && (
-                      <div style={descriptionStyle}>
-                        <h5>Description:</h5>
-                        <p>{repo.description}</p>
-                      </div>
-                    )}
-                    {!!lang_arr.length && (
-                      <div style={languagesStyle}>
-                        <h5>Languages:</h5>
-                        {lang_arr.slice(0, 3).map(lang => (
-                          <p key={`${lang} ${repo.id}`}>{lang}</p>
-                        ))}
-                        {lang_arr.length > 3 && <p>...</p>}
-                      </div>
-                    )}
+              return (
+                <Link to={`/${repo.id}`} key={repo.id}>
+                  <div className="card" style={cardStyle}>
+                    <h3>{repo.name}</h3>
+                    <h5>Stars: {repo.stargazers_count}</h5>
+                    <div style={infoStyle}>
+                      {repo.description && (
+                        <div style={descriptionStyle}>
+                          <h5>Description:</h5>
+                          <p>{repo.description}</p>
+                        </div>
+                      )}
+                      {!!lang_arr.length && (
+                        <div style={languagesStyle}>
+                          <h5>Languages:</h5>
+                          {lang_arr.slice(0, 3).map(lang => (
+                            <p key={`${lang} ${repo.id}`}>{lang}</p>
+                          ))}
+                          {lang_arr.length > 3 && <p>...</p>}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })
-        ) : (
-          <p>no repos</p>
-        )}
-      </div>
+                </Link>
+              );
+            })
+          ) : (
+            <p>no repos</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
