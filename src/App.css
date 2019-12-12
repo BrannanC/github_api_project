@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+a {
+  color: #fafafa;
+  text-decoration: none;
+}
+
+.card:hover {
+  transform: scale(1.01);
+}
+
+img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 10px;
+}
