@@ -15,11 +15,10 @@ function SingleRepo(props) {
       for (let lang in lang_obj) {
         languages.push(lang);
       }
-      console.log(result);
       setRepo({ ...result, languages });
     };
     fetchRepo();
-  }, []);
+  }, [props.match.params.id]);
   return repo ? (
     repo.message ? (
       <header className="App-header">
@@ -29,7 +28,7 @@ function SingleRepo(props) {
       <div className="App-header">
         <div key={repo.id} style={cardStyle}>
           <div style={nameStyle}>
-            <img src={repo.owner.avatar_url} />
+            <img src={repo.owner.avatar_url} alt="useravatar" />
             <h2>{repo.owner.login}</h2>
           </div>
           <h3>{repo.name}</h3>

@@ -6,24 +6,6 @@ const Cards = () => {
   const [user, setUser] = useState("brannanc");
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const getRepos = async search_name => {
-    setIsLoading(true);
-    const user_response = await fetch(
-      `https://api.github.com/search/repositories?q=user:${search_name}&sort=stars`
-    );
-    const user = await user_response.json();
-    const repos_with_languages = await Promise.all(
-      user.items.map(async repo => {
-        const raw_lan = await fetch(
-          `https://api.github.com/repos/${search_name}/${repo.name}/languages`
-        );
-        const languages = await raw_lan.json();
-        return { ...repo, languages };
-      })
-    );
-    setUserData({ ...userData, repos: repos_with_languages });
-    setIsLoading(false);
-  };
 
   const searchForUser = e => {
     e.preventDefault();
@@ -36,6 +18,24 @@ const Cards = () => {
   };
 
   useEffect(() => {
+    const getRepos = async search_name => {
+      setIsLoading(true);
+      const user_response = await fetch(
+        `https://api.github.com/search/repositories?q=user:${search_name}&sort=stars`
+      );
+      const user = await user_response.json();
+      const repos_with_languages = await Promise.all(
+        user.items.map(async repo => {
+          const raw_lan = await fetch(
+            `https://api.github.com/repos/${search_name}/${repo.name}/languages`
+          );
+          const languages = await raw_lan.json();
+          return { ...repo, languages };
+        })
+      );
+      setUserData({ repos: repos_with_languages });
+      setIsLoading(false);
+    };
     getRepos(user);
   }, [user]);
   return userData == null || isLoading ? (
